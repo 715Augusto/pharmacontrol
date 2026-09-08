@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Configurações - PharmaControl</title>
+  <link rel="icon" href="./Imgs/Logo-mais-vida-120x90-azul-2.png" type="image/png">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link rel="stylesheet" href="./css/global.css">
+</head>
+<body>
+
+  <aside>
+    <div class="brand">PharmaControl</div>
+    <ul class="menu">
+      <li class="menu-section">Análises</li>
+      <li class="menu-item"><a href="dashboard.html">📊 Dashboard</a></li>
+      <li class="menu-item"><a href="relatorios.html">📈 Relatórios</a></li>
+      <li class="menu-section">Operações</li>
+      <li class="menu-item"><a href="movimentacoes.html">🚚 Movimentações</a></li>
+      <li class="menu-item"><a href="estoque-detalhado.html">📋 Estoque Detalhado</a></li>
+      <li class="menu-section">Cadastros</li>
+      <li class="menu-item"><a href="medicamentos.html">💊 Medicamentos</a></li>
+      <li class="menu-item"><a href="fornecedores.html">🏢 Fornecedores</a></li>
+      <li class="menu-item"><a href="kits.html">🧰 Kits</a></li>
+      <li class="menu-item"><a href="localizacoes.html">📍 Localizações</a></li>
+      <li class="menu-section">Ajustes</li>
+      <li class="menu-item active"><a href="#">⚙️ Configurações</a></li>
+    </ul>
+    <div class="user-info">
+      <div>Usuário: <strong id="nome-usuario-logado">Carregando...</strong></div>
+      <button id="btn-tema" class="btn-tema">🌓 Modo Escuro</button>
+      <button id="btn-sair" class="btn-logout" type="button">Sair do Sistema 🚪</button>
+    </div>
+  </aside>
+
+  <main>
+    <h1 style="margin-bottom: 24px;">Configurações do Sistema</h1>
+
+    <div class="card-form">
+      <h3>Novo Usuário</h3>
+      <form id="form-usuario" class="form-grid">
+        <div class="form-group">
+          <label>Nome Completo</label>
+          <input type="text" id="usuario_nome" placeholder="Ex: João da Silva" required>
+        </div>
+        <div class="form-group">
+          <label>E-mail de Acesso</label>
+          <input type="email" id="usuario_email" placeholder="joao@hospital.com" required>
+        </div>
+        <div class="form-group">
+          <label>Nível de Acesso</label>
+          <select id="usuario_nivel" required>
+            <option value="PADRAO">Usuário Padrão (Farmácia / Enfermagem)</option>
+            <option value="ADMIN">Administrador (Acesso Total)</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-save">Cadastrar Usuário</button>
+      </form>
+    </div>
+
+    <div class="card-form" style="margin-top: 24px;">
+      <h3 style="margin-bottom: 16px;">Usuários Cadastrados</h3>
+      <div class="table-container">
+        <table style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>E-mail</th>
+              <th>Nível de Acesso</th>
+              <th>Status</th>
+              <th>Último Acesso</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="lista-usuarios">
+            <tr><td colspan="6" style="text-align:center; color: var(--muted); padding: 20px;">Carregando usuários...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+<script type="module">
+    import './js/auth-guard.js';
+    import './js/utils.js';
+    import { carregarUsuarios, cadastrarUsuario } from './js/tela-configuracoes.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Carrega a tabela de usuários assim que a página abre
+      carregarUsuarios();
+
+      // 2. Avisa ao sistema o que fazer quando clicar no botão "Enviar Convite"
+      const formUsuario = document.getElementById('form-usuario');
+      if (formUsuario) {
+        formUsuario.addEventListener('submit', cadastrarUsuario);
+      }
+    });
+</script>
+</body>
+</html>

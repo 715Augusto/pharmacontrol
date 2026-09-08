@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PharmaControl:: Estoque Detalhado</title>
+  <link rel="icon" href="./Imgs/Logo-mais-vida-120x90-azul-2.png" type="image/png">
+  <link rel="stylesheet" href="./css/global.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+
+  <!-- Menu Lateral -->
+  <aside class="sidebar">
+    <div class="brand">PharmaControl</div>
+    <ul class="menu">
+      <li class="menu-section">Análises</li>
+      <li class="menu-item"><a href="dashboard.html">📊 Dashboard</a></li>
+      <li class="menu-item"><a href="relatorios.html">📈 Relatórios</a></li>
+      <li class="menu-section">Operações</li>
+      <li class="menu-item"><a href="movimentacoes.html">🚚 Movimentações</a></li>
+      <li class="menu-item active"><a href="#">📋 Estoque Detalhado</a></li>
+      <li class="menu-section">Cadastros</li>
+      <li class="menu-item"><a href="medicamentos.html">💊 Medicamentos</a></li>
+      <li class="menu-item"><a href="fornecedores.html">🏢 Fornecedores</a></li>
+      <li class="menu-item"><a href="kits.html">🧰 Kits</a></li>
+      <li class="menu-item"><a href="localizacoes.html">📍 Localizações</a></li>
+      <li class="menu-section">Ajustes</li>
+      <li class="menu-item"><a href="configuracoes.html">⚙️ Configurações</a></li>
+    </ul>
+    <div class="user-info">
+      <div>Usuário: <strong id="nome-usuario-logado">Carregando...</strong></div>
+      <button id="btn-tema" class="btn-tema">🌓 Modo Escuro</button>
+      <button id="btn-sair" class="btn-logout" type="button">Sair do Sistema 🚪</button>
+    </div>
+  </aside>
+
+  <!-- Conteúdo Principal -->
+  <main>
+    <!-- Cabeçalho com Título e Botão alinhados -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+      <div>
+        <h1 style="margin-bottom: 4px; color: var(--text);">Estoque Detalhado</h1>
+        <p style="color: var(--muted);">Visão de prateleira: lotes, validades e saldo físico</p>
+      </div>
+      <button id="btn-exportar" class="btn btn-save" style="background-color: var(--success); border-color: var(--success); width: auto; padding: 10px 24px;">
+        📊 Exportar para Excel
+      </button>
+    </div>
+
+    <!-- Filtros dentro de um Card limpo (Sem cores fixas) -->
+    <div class="card" style="display: flex; gap: 15px; padding: 16px; margin-bottom: 24px; align-items: center; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+      
+      <div class="form-group" style="flex: 1; margin: 0;">
+        <input type="text" id="filtro-texto" placeholder="Buscar por medicamento, princípio ativo ou lote..." 
+               style="padding: 10px 15px; border-radius: 6px; outline: none; margin: 0;">
+      </div>
+      
+      <div class="form-group" style="margin: 0;">
+        <select id="filtro-saldo" style="padding: 10px 15px; border-radius: 6px; outline: none; cursor: pointer; margin: 0;">
+          <option value="todos">Todos os Saldos</option>
+          <option value="com_saldo">Com Saldo (> 0)</option>
+          <option value="zerados">Zerados (0)</option>
+        </select>
+      </div>
+
+      <div class="form-group" style="margin: 0;">
+        <select id="filtro-validade" style="padding: 10px 15px; border-radius: 6px; outline: none; cursor: pointer; margin: 0;">
+          <option value="todos">Todas as Validades</option>
+          <option value="vencidos">Vencidos</option>
+          <option value="30_dias">Vence em 30 dias</option>
+          <option value="bom">Validade OK</option>
+        </select>
+      </div>
+
+    </div>
+
+    <!-- Tabela dentro de um Card -->
+    <div class="card table-card" style="border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+      <table>
+        <thead>
+          <tr>
+            <th>Medicamento</th>
+            <th>Lote</th>
+            <th>Validade</th>
+            <th>Saldo</th>
+            <th>Última Mov.</th>
+            <th>Status Validade</th>
+          </tr>
+        </thead>
+        <tbody id="tabela-prateleira">
+          <tr><td colspan="6" style="text-align: center; color: var(--muted); padding: 20px;">Aguardando dados da prateleira...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <script type="module">
+    import './js/auth-guard.js';
+    import './js/utils.js'; // Ativa o botão de sair automaticamente!
+    
+    import { carregarEstoqueDetalhado, exportarExcel } from './js/tela-estoque-detalhado.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      carregarEstoqueDetalhado();
+
+      // Vincula a função de exportar Excel ao botão na tela
+      const btnExportar = document.getElementById('btn-exportar');
+      if (btnExportar) {
+        btnExportar.addEventListener('click', exportarExcel);
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PharmaControl:: Home</title>
+  <link rel="icon" href="./Imgs/Logo-mais-vida-120x90-azul-2.png" type="image/png">
+  <link rel="stylesheet" href="./css/global.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- 📈 Biblioteca de Gráficos (Chart.js) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <!-- Menu Lateral -->
+  <aside class="sidebar">
+    <div class="brand">PharmaControl</div>
+    <ul class="menu">
+      <li class="menu-section">Análises</li>
+      <li class="menu-item active"><a href="#">📊 Dashboard</a></li>
+      <li class="menu-item"><a href="relatorios.html">📈 Relatórios</a></li>
+      <li class="menu-section">Operações</li>
+      <li class="menu-item"><a href="movimentacoes.html">🚚 Movimentações</a></li>
+      <li class="menu-item"><a href="estoque-detalhado.html">📋 Estoque Detalhado</a></li>
+      <li class="menu-section">Cadastros</li>
+      <li class="menu-item"><a href="medicamentos.html">💊 Medicamentos</a></li>
+      <li class="menu-item"><a href="fornecedores.html">🏢 Fornecedores</a></li>
+      <li class="menu-item"><a href="kits.html">🧰 Kits</a></li>
+      <li class="menu-item"><a href="localizacoes.html">📍 Localizações</a></li>
+      <li class="menu-section">Ajustes</li>
+      <li class="menu-item"><a href="configuracoes.html">⚙️ Configurações</a></li>
+    </ul>
+    <div class="user-info">
+      <div>Usuário: <strong id="nome-usuario-logado">Carregando...</strong></div>
+      <button id="btn-tema" class="btn-tema">🌓 Modo Escuro</button>
+      <button id="btn-sair" class="btn-logout" type="button">Sair do Sistema 🚪</button>
+    </div>
+  </aside>
+
+  <!-- Conteúdo Principal -->
+  <main>
+    <!-- Cabeçalho -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; color: var(--muted);">
+      <div>
+        <h1 style="margin-bottom: 4px;">Visão Executiva do Estoque</h1>
+        <p style="color: var(--muted);">Acompanhe alertas, valores financeiros e histórico de consumo.</p>
+      </div>
+      <a href="movimentacoes.html" class="btn btn-save" style="background-color: var(--primary); color: white; text-decoration: none; width: auto; padding: 10px 20px; align-items: center; display: flex;">
+        + Nova Movimentação
+      </a>
+    </div>
+
+    <!-- 📊 MÓDULO 1: Cards de Resumo (Grid 4 colunas agora) -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+      
+      <!-- Card 1: Crítico -->
+      <div class="card" style="padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <div style="font-size: 0.80rem; text-transform: uppercase; color: var(--muted); font-weight: bold; margin-bottom: 10px;">Estoque Crítico (Falta)</div>
+        <div id="total-critico" style="font-size: 2.2rem; color: var(--danger); font-weight: bold;">0</div>
+      </div>
+
+      <!-- Card 2: Vencimento -->
+      <div class="card" id="card-vencimentos" style="padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); cursor: pointer; transition: 0.2s;">
+        <div style="font-size: 0.80rem; text-transform: uppercase; color: var(--muted); font-weight: bold; margin-bottom: 10px;">Vencem em < 90 dias 🔍</div>
+        <div id="total-vencimento" style="font-size: 2.2rem; color: #f59e0b; font-weight: bold;">0</div>
+      </div>
+
+      <!-- Card 3: Financeiro -->
+      <div class="card" style="padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <div style="font-size: 0.80rem; text-transform: uppercase; color: var(--muted); font-weight: bold; margin-bottom: 10px;">Valor Total em Estoque</div>
+        <div id="total-financeiro" style="font-size: 1.8rem; color: var(--success); font-weight: bold;">R$ 0,00</div>
+      </div>
+
+      <!-- Card 4: Total Itens -->
+      <div class="card" style="padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <div style="font-size: 0.80rem; text-transform: uppercase; color: var(--muted); font-weight: bold; margin-bottom: 10px;">Itens Cadastrados</div>
+        <div id="total-itens" style="font-size: 2.2rem; color: var(--text); font-weight: bold;">0</div>
+      </div>
+
+    </div>
+
+    <!-- 📊 MÓDULO 2: ÁREA DE GRÁFICOS (Duas Colunas) -->
+    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px; margin-bottom: 24px;">
+      
+      <!-- Gráfico de Pizza -->
+      <div class="card" style="border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <h3 style="margin-bottom: 16px; font-size: 1.1rem; color: var(--text);">Saúde do Estoque</h3>
+        <div style="position: relative; height: 250px;">
+          <canvas id="graficoStatus"></canvas>
+        </div>
+      </div>
+
+      <!-- Gráfico de Barras -->
+      <div class="card" style="border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <h3 style="margin-bottom: 16px; font-size: 1.1rem; color: var(--text);">Top 5 - Consumo Mensal (Saídas)</h3>
+        <div style="position: relative; height: 250px;">
+          <canvas id="graficoTopConsumo"></canvas>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 📊 MÓDULO 3: Tabela Geral -->
+    <div class="card table-card" style="border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding-bottom: 10px;">
+      <h3 style="padding: 20px 20px 10px 20px; margin: 0; color: var(--text);">Saldo Atual por Medicamento</h3>
+      <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr>
+            <th style="padding: 12px 20px; text-align: left;">Medicamento</th>
+            <th style="padding: 12px 20px; text-align: left;">Princípio Ativo</th>
+            <th style="padding: 12px 20px; text-align: left;">Saldo Total</th>
+            <th style="padding: 12px 20px; text-align: left;">Status</th>
+          </tr>
+        </thead>
+        <tbody id="tabela-estoque">
+          <tr><td colspan="4" style="text-align: center; padding: 20px; color: var(--muted);">Aguardando dados...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </main>
+
+  <!-- ======================================================= -->
+  <!-- 🚨 MODAL: ALERTAS DE VENCIMENTO (DRILL-DOWN)            -->
+  <!-- ======================================================= -->
+  <div id="modal-vencimentos" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.75); z-index: 10000; display: flex; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(4px);">
+    <div class="card" style="width: 100%; max-width: 700px; max-height: 80vh; overflow-y: auto; position: relative;">
+      <button id="btn-fechar-modal-venc" style="position: absolute; top: 16px; right: 20px; background: none; border: none; font-size: 1.5rem; color: var(--muted); cursor: pointer;">✖</button>
+      
+      <h2 style="color: #ea580c; margin-bottom: 8px;">⚠️ Lotes em Risco de Vencimento</h2>
+      <p style="color: var(--muted); margin-bottom: 20px;">Atenção: Os lotes abaixo expiram em menos de 90 dias.</p>
+      
+      <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr>
+            <th style="padding: 12px; text-align: left;">Medicamento</th>
+            <th style="padding: 12px; text-align: left;">Lote</th>
+            <th style="padding: 12px; text-align: center;">Vence em</th>
+          </tr>
+        </thead>
+        <tbody id="lista-lotes-vencendo">
+          <!-- Preenchido pelo JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script type="module">
+    import './js/auth-guard.js';
+    import './js/utils.js';
+    import { carregarDashboard } from './js/tela-dashboard.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      carregarDashboard();
+      
+      // Eventos do Modal de Vencimentos
+      document.getElementById('card-vencimentos').addEventListener('click', () => {
+        document.getElementById('modal-vencimentos').classList.remove('hidden');
+        document.getElementById('modal-vencimentos').style.display = 'flex';
+      });
+
+      document.getElementById('btn-fechar-modal-venc').addEventListener('click', () => {
+        document.getElementById('modal-vencimentos').classList.add('hidden');
+        document.getElementById('modal-vencimentos').style.display = 'none';
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Localizações - PharmaControl</title>
+  <link rel="icon" href="./Imgs/Logo-mais-vida-120x90-azul-2.png" type="image/png">
+  
+  <!-- SweetAlert2 para os alertas bonitos -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
+  <link rel="stylesheet" href="./css/global.css">
+</head>
+<body>
+
+  <!-- Adicionada a classe 'sidebar' que faltava -->
+  <aside class="sidebar">
+    <div class="brand">PharmaControl</div>
+    <ul class="menu">
+      <li class="menu-section">Análises</li>
+      <li class="menu-item"><a href="dashboard.html">📊 Dashboard</a></li>
+      <li class="menu-item"><a href="relatorios.html">📈 Relatórios</a></li>
+      <li class="menu-section">Operações</li>
+      <li class="menu-item"><a href="movimentacoes.html">🚚 Movimentações</a></li>
+      <li class="menu-item"><a href="estoque-detalhado.html">📋 Estoque Detalhado</a></li>
+      <li class="menu-section">Cadastros</li>
+      <li class="menu-item"><a href="medicamentos.html">💊 Medicamentos</a></li>
+      <li class="menu-item"><a href="fornecedores.html">🏢 Fornecedores</a></li>
+      <li class="menu-item"><a href="kits.html">🧰 Kits</a></li>
+      <li class="menu-item active"><a href="#">📍 Localizações</a></li>
+      <li class="menu-section">Ajustes</li>
+      <li class="menu-item"><a href="configuracoes.html">⚙️ Configurações</a></li>
+    </ul>
+    <div class="user-info">
+      <div>Usuário: <strong id="nome-usuario-logado">Carregando...</strong></div>
+      <button id="btn-tema" class="btn-tema">🌓 Modo Escuro</button>
+      <button id="btn-sair" class="btn-logout" type="button">Sair do Sistema 🚪</button>
+    </div>
+  </aside>
+
+  <main>
+    <h1 style="margin-bottom: 24px; color: var(--text);">Locais de Armazenamento</h1>
+
+    <div class="card-form">
+      <h3 style="margin-bottom: 16px; color: var(--text);">Nova Localização</h3>
+      <form id="form-localizacao" class="form-grid">
+        <!-- Campo oculto para identificar edição -->
+        <input type="hidden" id="localizacao_id">
+
+        <div class="form-group">
+          <label>Nome do Local</label>
+          <input type="text" id="nome_local" placeholder="Ex: Farmácia Central / Prateleira A2 / UTI 01" required>
+        </div>
+        
+        <div class="form-group">
+          <label>Descrição / Detalhes</label>
+          <input type="text" id="descricao_local" placeholder="Ex: Armário com refrigeração para insulinas">
+        </div>
+        
+        <!-- Checkbox padronizado com a classe form-group -->
+        <div class="form-group" style="display: flex; align-items: center; gap: 8px; margin-top: 24px;">
+          <input type="checkbox" id="eh_kit" style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary);">
+          <label for="eh_kit" style="margin: 0; cursor: pointer; font-weight: bold; color: var(--text);">Este local é um Kit Móvel / Viatura?</label>
+        </div>
+
+        <!-- Botão alinhado à direita -->
+        <div style="grid-column: 1 / -1; display: flex; justify-content: flex-end; margin-top: 10px;">
+          <button type="submit" class="btn btn-save" style="width: auto; padding: 12px 24px;">Salvar Localização</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Tabela no formato Card Bonitinho com classes do Dark Mode -->
+    <div class="card table-card" style="margin-top: 24px; padding: 0; overflow: hidden; border: 1px solid var(--muted); box-shadow: none;">
+      <h3 style="padding: 20px 20px 10px 20px; margin: 0; color: var(--text);">Locais Cadastrados</h3>
+      
+      <div class="table-container" style="box-shadow: none; padding: 0; margin-top: 0; border-radius: 0;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr>
+              <th style="padding: 12px 20px;">Nome</th>
+              <th style="padding: 12px 20px;">Descrição</th>
+              <th style="padding: 12px 20px;">Tipo</th>
+              <th style="padding: 12px 20px;">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="lista-localizacoes">
+            <tr><td colspan="4" style="text-align:center; color: var(--muted); padding: 20px;">Carregando localizações...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import './js/auth-guard.js';
+    import './js/utils.js';
+    import { carregarLocalizacoes, salvarLocalizacao } from './js/tela-localizacoes.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      carregarLocalizacoes();
+      
+      const formLoc = document.getElementById('form-localizacao');
+      if (formLoc) formLoc.addEventListener('submit', salvarLocalizacao);
+    });
+  </script>
+</body>
+</html>

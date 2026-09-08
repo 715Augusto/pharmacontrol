@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kits - PharmaControl</title>
+  <link rel="icon" href="./Imgs/Logo-mais-vida-120x90-azul-2.png" type="image/png">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link rel="stylesheet" href="./css/global.css">
+</head>
+<body>
+
+  <aside>
+    <div class="brand">PharmaControl</div>
+    <ul class="menu">
+      <li class="menu-section">Análises</li>
+      <li class="menu-item"><a href="dashboard.html">📊 Dashboard</a></li>
+      <li class="menu-item"><a href="relatorios.html">📈 Relatórios</a></li>
+      <li class="menu-section">Operações</li>
+      <li class="menu-item"><a href="movimentacoes.html">🚚 Movimentações</a></li>
+      <li class="menu-item"><a href="estoque-detalhado.html">📋 Estoque Detalhado</a></li>
+      <li class="menu-section">Cadastros</li>
+      <li class="menu-item"><a href="medicamentos.html">💊 Medicamentos</a></li>
+      <li class="menu-item"><a href="fornecedores.html">🏢 Fornecedores</a></li>
+      <li class="menu-item active"><a href="#">🧰 Kits</a></li>
+      <li class="menu-item"><a href="localizacoes.html">📍 Localizações</a></li>
+      <li class="menu-section">Ajustes</li>
+      <li class="menu-item"><a href="configuracoes.html">⚙️ Configurações</a></li>
+    </ul>
+    <div class="user-info">
+      <div>Usuário: <strong id="nome-usuario-logado">Carregando...</strong></div>
+      <button id="btn-tema" class="btn-tema">🌓 Modo Escuro</button>
+      <button id="btn-sair" class="btn-logout" type="button">Sair do Sistema 🚪</button>
+    </div>
+  </aside>
+
+  <main>
+    <header class="topbar">
+      <div>
+        <h1>Gestão de Kits</h1>
+        <p style="color: var(--muted); font-size: 0.9rem;">Configure os moldes e gerencie as maletas físicas</p>
+      </div>
+      <!-- Botões de Alternância (Abas) -->
+      <div class="toggle-group">
+        <button id="btn-aba-tipos" class="btn-tab active" onclick="mudarAba('tipos')">1. Tipos e Receitas</button>
+        <button id="btn-aba-fisicos" class="btn-tab" onclick="mudarAba('fisicos')">2. Kits Físicos (Lacres)</button>
+      </div>
+    </header>
+
+    <!-- ========================================== -->
+    <!-- ABA 1: TIPOS E RECEITAS (Moldes)           -->
+    <!-- ========================================== -->
+    <div id="aba-tipos">
+      
+      <div class="card-form">
+        <h3>A. Criar Definição de Kit (O Molde)</h3>
+        <form id="form-tipo-kit" class="form-grid">
+          <div class="form-group">
+            <label>Nome do Kit</label>
+            <input type="text" id="nome_kit" placeholder="Ex: Kit Parada Cardíaca / Kit Intubação" required>
+          </div>
+          <div class="form-group">
+            <label>Descrição do Protocolo</label>
+            <input type="text" id="descricao_kit" placeholder="Ex: Utilizado em emergências pediátricas">
+          </div>
+          <button type="submit" class="btn btn-save">Salvar Definição</button>
+        </form>
+      </div>
+
+      <div class="card-form">
+        <h3>B. Adicionar Medicamentos (A Receita)</h3>
+        <form id="form-kit-item" class="form-grid">
+          <div class="form-group">
+            <label>Selecione o Tipo de Kit</label>
+            <select id="select_tipo_kit_receita" required>
+              <option value="">Aguardando dados...</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Medicamento Necessário</label>
+            <select id="select_medicamento" required>
+              <option value="">Aguardando dados...</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Qtd. Padrão Necessária</label>
+            <input type="number" id="quantidade_padrao" min="1" value="1" required>
+          </div>
+          <button type="submit" class="btn btn-save">Vincular Item à Receita</button>
+        </form>
+      </div>
+
+      <!-- 👇 AGORA SIM: A TABELA ESTÁ DENTRO DA ABA 1 👇 -->
+      <div class="card-form" style="margin-top: 24px;">
+              <h3 style="margin-bottom: 16px;">Tipos de Kits Cadastrados (Moldes)</h3>
+              
+              <div class="table-container">
+                <table style="width: 100%; border-collapse: collapse;">
+                  <thead>
+                    <tr>
+                      <th>Nome do Kit</th>
+                      <th>Descrição do Protocolo</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tabela-tipos-kit">
+                    <tr><td colspan="3" style="text-align: center; color: var(--muted); padding: 20px;">Carregando tipos de kits...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+      <!-- 👆 FIM DA TABELA 👆 -->
+
+    </div> <!-- FIM DA ABA 1 -->
+
+
+    <!-- ========================================== -->
+    <!-- ABA 2: KITS FÍSICOS E LACRES (A Maleta Real)-->
+    <!-- ========================================== -->
+    <div id="aba-fisicos" class="hidden">
+      
+      <div class="card-form">
+        <h3>Registrar Nova Maleta Física</h3>
+        <form id="form-kit-fisico" class="form-grid">
+          <div class="form-group">
+            <label>Tipo do Kit (Molde)</label>
+            <select id="select_tipo_kit_fisico" required>
+              <option value="">Aguardando dados...</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Número do Lacre / Patrimônio</label>
+            <input type="text" id="numero_lacre" placeholder="Ex: LCR-4589" required>
+          </div>
+          <div class="form-group">
+            <label>Onde está sendo guardado agora?</label>
+            <select id="select_localizacao" required>
+              <option value="">Selecione a Base ou Viatura...</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-save">Registrar Maleta</button>
+        </form>
+      </div>
+
+      <div class="table-container">
+        <h3>Maletas Cadastradas</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Número do Lacre</th>
+              <th>Tipo de Kit</th>
+              <th>Localização Atual</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="tabela-kits-fisicos">
+            <tr>
+              <td colspan="4" style="text-align: center; color: var(--muted);">Aguardando dados...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div> <!-- FIM DA ABA 2 -->
+
+  </main>
+
+  <script type="module">
+    import './js/auth-guard.js';
+    import './js/utils.js'; 
+    
+    import { 
+      carregarDadosTelaKits, 
+      salvarTipoKit, 
+      salvarItemDaReceita,
+      carregarLocalizacoesKits,
+      salvarKitFisico,
+      carregarTabelaKitsFisicos,
+      carregarTabelaTiposKit
+    } from './js/tela-kits.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      carregarDadosTelaKits();
+      carregarLocalizacoesKits();
+      carregarTabelaKitsFisicos();
+      carregarTabelaTiposKit();
+
+      const formTipoKit = document.getElementById('form-tipo-kit');
+      if (formTipoKit) formTipoKit.addEventListener('submit', salvarTipoKit);
+
+      const formKitItem = document.getElementById('form-kit-item');
+      if (formKitItem) formKitItem.addEventListener('submit', salvarItemDaReceita);
+
+      const formKitFisico = document.getElementById('form-kit-fisico');
+      if (formKitFisico) formKitFisico.addEventListener('submit', salvarKitFisico);
+    });
+
+    window.mudarAba = function(aba) {
+      const divTipos = document.getElementById('aba-tipos');
+      const divFisicos = document.getElementById('aba-fisicos');
+      const btnTipos = document.getElementById('btn-aba-tipos');
+      const btnFisicos = document.getElementById('btn-aba-fisicos');
+
+      divTipos.classList.add('hidden');
+      divFisicos.classList.add('hidden');
+      btnTipos.classList.remove('active');
+      btnFisicos.classList.remove('active');
+
+      if (aba === 'tipos') {
+        divTipos.classList.remove('hidden');
+        btnTipos.classList.add('active');
+      } else if (aba === 'fisicos') {
+        divFisicos.classList.remove('hidden');
+        btnFisicos.classList.add('active');
+      }
+    };
+  </script>
+</body>
+</html>

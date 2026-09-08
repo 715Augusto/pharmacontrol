@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Movimentações - PharmaControl</title>
+  <link rel="icon" href="./Imgs/Logo-mais-vida-120x90-azul-2.png" type="image/png">
+  
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <link rel="stylesheet" href="./css/global.css">
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="brand">PharmaControl</div>
+    <ul class="menu">
+      <li class="menu-section">Análises</li>
+      <li class="menu-item"><a href="dashboard.html">📊 Dashboard</a></li>
+      <li class="menu-item"><a href="relatorios.html">📈 Relatórios</a></li>
+      <li class="menu-section">Operações</li>
+      <li class="menu-item active"><a href="#">🚚 Movimentações</a></li>
+      <li class="menu-item"><a href="estoque-detalhado.html">📋 Estoque Detalhado</a></li>
+      <li class="menu-section">Cadastros</li>
+      <li class="menu-item"><a href="medicamentos.html">💊 Medicamentos</a></li>
+      <li class="menu-item"><a href="fornecedores.html">🏢 Fornecedores</a></li>
+      <li class="menu-item"><a href="kits.html">🧰 Kits</a></li>
+      <li class="menu-item"><a href="localizacoes.html">📍 Localizações</a></li>
+      <li class="menu-section">Ajustes</li>
+      <li class="menu-item"><a href="configuracoes.html">⚙️ Configurações</a></li>
+    </ul>
+    <div class="user-info">
+      <div>Usuário: <strong id="nome-usuario-logado">Carregando...</strong></div>
+      <button id="btn-tema" class="btn-tema">🌓 Modo Escuro</button>
+      <button id="btn-sair" class="btn-logout" type="button">Sair do Sistema 🚪</button>
+    </div>
+  </aside>
+
+  <main>
+    <div class="container">
+      
+      <!-- HEADER DA PÁGINA COM AS 3 ABAS -->
+      <div class="header-page">
+        <h1 id="titulo-pagina">Gestão de Movimentações</h1>
+        
+        <div class="nav-tabs">
+          <button type="button" class="tab-btn active" id="tab-entrada">
+            📥 Entrada (NF)
+          </button>
+          <button type="button" class="tab-btn" id="tab-saida">
+            📤 Saída / Transferência
+          </button>
+          <button type="button" class="tab-btn" id="tab-historico">
+            📜 Histórico
+          </button>
+        </div>
+      </div>
+
+      <!-- ======================================================= -->
+      <!-- 📥 SEÇÃO 1: PAINEL DE ENTRADA (COMPRA / NOTA FISCAL)    -->
+      <!-- ======================================================= -->
+      <div id="painel-entrada">
+        
+        <div class="card" style="margin-bottom: 24px;">
+          <div class="card-title">1. Dados do Documento / Nota Fiscal</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Número da Nota Fiscal</label>
+              <input type="text" id="numero_nota_fiscal" placeholder="Ex: NF-10452">
+            </div>
+
+            <div class="form-group">
+              <label>Valor Total da NF (R$) *</label>
+              <input type="number" id="valor_total_documento" step="0.01" min="0" placeholder="Ex: 1550.00">
+            </div>
+
+            <div class="form-group">
+              <label>Fornecedor / Origem</label>
+              <select id="select_fornecedor">
+                <option value="">Carregando fornecedores...</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Anexo da NF (PDF / Imagem)</label>
+              <input type="file" id="arquivo_nota" accept="application/pdf, image/*">
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top: 8px;">
+            <label>Observações Gerais</label>
+            <input type="text" id="observacao_nota" placeholder="Ex: Entrega parcial referente ao pedido #45">
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom: 24px;">
+          <div class="card-title">2. Adicionar Medicamento à Nota</div>
+          <div class="form-grid">
+            
+            <div class="form-group" style="grid-column: span 2;">
+              <label>Medicamento Cadastrado *</label>
+              <select id="select_medicamento">
+                <option value="">Carregando medicamentos...</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Número do Lote *</label>
+              <input type="text" id="item_lote" placeholder="Ex: LOT-2026A">
+            </div>
+
+            <div class="form-group">
+              <label>Data de Validade *</label>
+              <input type="date" id="item_validade">
+            </div>
+
+            <div class="form-group">
+              <label>Quantidade *</label>
+              <input type="number" id="item_quantidade" min="1" placeholder="Qtd caixas/unid">
+            </div>
+
+            <div class="form-group">
+              <label>Valor Unitário (R$) *</label>
+              <input type="number" id="item_valor_unitario" step="0.01" min="0" placeholder="0.00">
+            </div>
+
+            <div class="form-group" style="display: flex;">
+              <button type="button" id="btn-adicionar-item" class="btn-add" style="width: 100%;">+ Adicionar à Nota</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">3. Itens da Nota Fiscal</div>
+          
+          <div class="table-container" style="box-shadow: none; border: 1px solid var(--muted); padding: 0;">
+            <table style="width: 100%; border-collapse: collapse;">
+              <thead>
+                <tr>
+                  <th>Medicamento</th>
+                  <th>Lote</th>
+                  <th>Validade</th>
+                  <th>Qtd</th>
+                  <th>Valor Unit.</th>
+                  <th>Subtotal</th>
+                  <th>Ação</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-itens-nota">
+                <tr>
+                  <td colspan="7" style="text-align: center; color: var(--muted); padding: 20px;">Nenhum item adicionado à nota fiscal ainda.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="total-box" style="margin-top: 16px;">
+            <span class="total-title">Valor Total da Nota Fiscal:</span>
+            <span class="total-valor" id="txt-valor-total">R$ 0,00</span>
+          </div>
+
+          <div style="margin-top: 20px;">
+            <button type="button" id="btn-finalizar-nota" class="btn-salvar">💾 Finalizar e Salvar Nota Fiscal</button>
+          </div>
+        </div>
+
+      </div>
+      
+<div id="painel-saida" class="hidden">
+      <!-- ======================================================= -->
+      <!-- 📤 SEÇÃO 2: PAINEL DE SAÍDA (CONSUMO/TRANSF/DESCARTE)  -->
+      <!-- ======================================================= -->
+      <div class="card" style="margin-bottom: 24px;">
+          <div class="card-title">1. Motivo e Destino da Operação</div>
+          
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Tipo de Operação *</label>
+              <select id="saida_motivo" required>
+                <option value="CONSUMO">Consumo / Ficha de Atendimento</option>
+                <option value="EVENTO">Uso em Evento / Posto Médico</option>
+                <option value="TRANSFERENCIA">Transferência Simples (Outra Prateleira)</option>
+                <option value="ABASTECIMENTO_KIT">Abastecimento de Kit (Viatura/Maleta)</option>
+                <option value="DESCARTE">Descarte / Perda (Vencimento/Avaria)</option>
+              </select>
+            </div>
+
+            <!-- CAMPO DINÂMICO A: CONSUMO / PACIENTE (ESTRUTURA PARA API) -->
+            <div class="form-group campo-dinamico-saida" id="campo-consumo" style="grid-column: span 2; display: flex; gap: 16px;">
+              <div style="flex: 1;">
+                <label>Ficha de Atendimento *</label>
+                <!-- NOVA ESTRUTURA: INPUT COM BOTÃO -->
+                <div style="display: flex; gap: 8px;">
+                  <input type="text" id="saida_ficha_atendimento" placeholder="Ex: FA-20261050" style="flex: 1;">
+                  <button type="button" id="btn-buscar-ficha" class="btn" style="padding: 10px 16px;">🔍 Buscar</button>
+                </div>
+              </div>
+              <div style="flex: 1;">
+                <!-- NOVO: CAMPO BLOQUEADO (READONLY) -->
+                <label>Paciente (Preenchimento Automático) *</label>
+                <input type="text" id="saida_destino_consumo" placeholder="Aguardando busca da ficha..." readonly style="background-color: var(--muted); opacity: 0.7; cursor: not-allowed; color: #fff;">
+              </div>
+              <div style="flex: 1;">
+                 <!-- NOVO CAMPO: INSTITUIÇÃO -->
+                <label>Instituição (Retorno API) *</label>
+                <input type="text" id="saida_instituicao_consumo" placeholder="Aguardando busca..." readonly style="background-color: var(--muted); opacity: 0.7; cursor: not-allowed; color: #fff;">
+              </div>
+            </div>
+
+            <!-- CAMPO DINÂMICO B: EVENTO -->
+            <div class="form-group campo-dinamico-saida hidden" id="campo-evento" style="grid-column: span 2;">
+              <label>Nome do Evento / Contratante *</label>
+              <input type="text" id="saida_evento_destino" placeholder="Ex: Show de Rock - Arena Central">
+            </div>
+
+            <!-- CAMPO DINÂMICO C: TRANSFERÊNCIA SIMPLES -->
+            <div class="form-group campo-dinamico-saida hidden" id="campo-transferencia">
+              <label>Prateleira / Local de Destino *</label>
+              <select id="select_localizacao_destino">
+                <option value="">Selecione o destino...</option>
+              </select>
+            </div>
+            
+            <!-- CAMPO DINÂMICO D: ABASTECIMENTO DE KIT -->
+            <div class="form-group campo-dinamico-saida hidden" id="campo-abastecimento-kit" style="grid-column: span 2;">
+              <div style="display: flex; gap: 16px;">
+                <div style="flex: 1;">
+                  <label>Qual o tipo do Kit? *</label>
+                  <select id="select_tipo_kit_transferencia">
+                    <option value="">Selecione para filtrar a receita...</option>
+                  </select>
+                </div>
+                <div style="flex: 1;">
+                  <label>Qual Lacre / Maleta? *</label>
+                  <select id="select_lacre_transferencia" disabled>
+                    <option value="">Selecione o tipo primeiro...</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- CAMPO DINÂMICO E: DESCARTE -->
+            <div class="form-group campo-dinamico-saida hidden" id="campo-descarte">
+              <label>Motivo do Descarte *</label>
+              <select id="saida_motivo_descarte">
+                <option value="VENCIMENTO">Validade Expirada</option>
+                <option value="AVARIA">Frasco/Caixa Danificado</option>
+                <option value="CONTAMINACAO">Suspeita de Contaminação</option>
+                <option value="OUTRO">Outro Motivo</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top: 8px;">
+            <label>Observações Adicionais</label>
+            <input type="text" id="saida_observacao" placeholder="Detalhes extras se necessário...">
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">2. Selecionar Medicamento e Lote</div>
+          
+          <div class="form-grid">
+            <div class="form-group" style="grid-column: span 2;">
+              <label id="label_medicamento_saida">Medicamento *</label>
+              <select id="select_medicamento_saida">
+                <option value="">Selecione o medicamento...</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Lote Disponível (PVPS/FEFO) *</label>
+              <select id="select_lote_saida">
+                <option value="">Selecione o medicamento primeiro...</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Quantidade a Retirar *</label>
+              <input type="number" id="saida_quantidade" min="1" placeholder="Qtd caixas/unid">
+            </div>
+          </div>
+
+          <div style="margin-top: 20px;">
+            <button type="button" id="btn-finalizar-saida" class="btn-salvar" style="background: #eab308; color: #0f172a;">
+              📤 Confirmar e Registrar Saída
+            </button>
+          </div>
+        </div>
+</div>
+
+      </div>
+
+      <!-- ======================================================= -->
+      <!-- 📜 SEÇÃO 3: PAINEL DE HISTÓRICO E FILTROS               -->
+      <!-- ======================================================= -->
+      <div id="painel-historico" class="hidden">
+        
+        <div class="card" style="margin-bottom: 24px;">
+          <div class="card-title">Filtros de Pesquisa</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Modo de Visualização</label>
+              <select id="filtro_modo_view">
+                <option value="ITENS">Itens Individuais (Entradas/Saídas)</option>
+                <option value="NOTAS">Log de Notas Fiscais (Resumo)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Data Inicial</label>
+              <input type="date" id="filtro_hist_inicio">
+            </div>
+            <div class="form-group">
+              <label>Data Final</label>
+              <input type="date" id="filtro_hist_fim">
+            </div>
+            <div class="form-group" style="display: flex; align-items: flex-end;">
+              <button type="button" id="btn-filtrar-historico" class="btn btn-save" style="width: 100%;">🔍 Buscar</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Resultados da Busca</div>
+          <div class="table-container" style="box-shadow: none; border: 1px solid var(--muted); padding: 0;">
+            <table style="width: 100%; border-collapse: collapse;">
+              <thead id="cabecalho-historico">
+                <tr>
+                  <th>Data / Hora</th>
+                  <th>Tipo</th>
+                  <th>Medicamento</th>
+                  <th>Lote</th>
+                  <th>Qtd.</th>
+                  <th>Usuário</th>
+                </tr>
+              </thead>
+              <tbody id="lista-historico">
+                <tr><td colspan="6" style="text-align:center; color: var(--muted); padding: 20px;">Use os filtros acima para buscar.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+      
+<!-- ======================================================= -->
+  <!-- 🪟 MODAL DE DETALHES DA NOTA FISCAL (ESCONDIDO)         -->
+  <!-- ======================================================= -->
+  <div id="modal-nota-fiscal" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.75); z-index: 10000; display: flex; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(4px);">
+    
+    <div class="card" style="width: 100%; max-width: 900px; max-height: 95vh; overflow-y: auto; position: relative; display: flex; flex-direction: column;">
+      
+      <!-- Botão Fechar -->
+      <button id="btn-fechar-modal-nf" style="position: absolute; top: 20px; right: 24px; background: none; border: none; font-size: 1.5rem; color: var(--muted); cursor: pointer;">✖</button>
+      
+      <!-- Cabeçalho da Nota e Botão de Anexo -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-right: 40px;">
+        <h2 style="margin: 0; color: var(--primary);">Detalhes da Nota Fiscal</h2>
+        
+        <!-- NOVO: Botão de Download do Anexo (Fica oculto se não tiver anexo) -->
+        <button id="btn-baixar-anexo" class="btn btn-save" style="background-color: var(--primary); border-color: var(--primary); width: auto; padding: 8px 16px; display: none; gap: 8px; align-items: center;">
+          📄 Ver Anexo Original
+        </button>
+      </div>
+
+      <div id="modal-nf-header" style="display: flex; flex-wrap: wrap; gap: 24px; margin-bottom: 24px; font-size: 0.95rem; color: var(--muted); border-bottom: 1px solid var(--muted); padding-bottom: 16px;">
+        <div><strong>Nº:</strong> <span id="modal-txt-numero">Carregando...</span></div>
+        <div><strong>Fornecedor:</strong> <span id="modal-txt-fornecedor">Carregando...</span></div>
+        <div><strong>Data de Lançamento:</strong> <span id="modal-txt-data">Carregando...</span></div>
+        <div><strong>Lançado por:</strong> <span id="modal-txt-usuario">Carregando...</span></div>
+        
+        <!-- NOVO: Valor Total da Nota em destaque -->
+        <div style="background: #0f172a; padding: 2px 8px; border-radius: 4px; border: 1px solid #1e293b;">
+          <strong>Valor Total:</strong> <span id="modal-txt-total" style="color: var(--success); font-weight: bold; font-size: 1.05rem;">R$ 0,00</span>
+        </div>
+      </div>
+
+      <!-- Itens da Nota -->
+      <h3 style="margin-bottom: 12px; font-size: 1.1rem; color: var(--text);">Itens Lançados (Editáveis)</h3>
+      <div class="table-container" style="margin-bottom: 24px; box-shadow: none; border: 1px solid var(--muted); padding: 0;">
+        <table style="width: 100%;">
+          <thead>
+            <tr>
+              <th>Medicamento</th>
+              <th>Lote / Validade</th>
+              <th style="width: 120px;">Qtd.</th>
+              <th style="width: 150px;">V. Unit. (R$)</th>
+              <th>Subtotal</th>
+              <th style="text-align: center;">Salvar</th>
+            </tr>
+          </thead>
+          <tbody id="modal-nf-itens">
+             <tr><td colspan="6" style="text-align:center;">Carregando itens...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Log de Auditoria -->
+      <h3 style="margin-bottom: 12px; font-size: 1.1rem; color: #d97706; display: flex; align-items: center; gap: 8px;">
+        <span>🕵️‍♂️</span> Histórico de Alterações (Auditoria)
+      </h3>
+      <div class="table-container" style="background: transparent; box-shadow: none; border: 1px solid #d97706; padding: 0;">
+        <table style="width: 100%; font-size: 0.85rem;">
+          <thead>
+            <tr>
+              <th style="color: #d97706; border-bottom: 1px solid #d97706;">Data/Hora</th>
+              <th style="color: #d97706; border-bottom: 1px solid #d97706;">Usuário</th>
+              <th style="color: #d97706; border-bottom: 1px solid #d97706;">O que foi alterado?</th>
+            </tr>
+          </thead>
+          <tbody id="modal-nf-auditoria">
+            <tr><td colspan="3" style="text-align:center; color: #b45309;">Nenhuma alteração registrada nesta nota.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+  <script type="module">
+    import './js/auth-guard.js';
+    import './js/utils.js'; 
+    
+    import { 
+      carregarMedicamentosSelect, carregarFornecedoresSelect, adicionarItemNota, finalizarNotaFiscal,
+      carregarMedicamentosSaidaSelect, carregarLocalizacoesSelect, carregarTiposKitSaida,
+      carregarLacresDoKitSelecionado, filtrarMedicamentosPeloKit, carregarLotesSaida, finalizarSaidaEstoque,
+      carregarHistorico 
+    } from './js/tela-movimentacoes.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      carregarMedicamentosSelect();
+      carregarFornecedoresSelect();
+      carregarMedicamentosSaidaSelect();
+      carregarLocalizacoesSelect(); 
+      carregarTiposKitSaida();
+
+      const tabEntrada = document.getElementById('tab-entrada');
+      const tabSaida = document.getElementById('tab-saida');
+      const tabHistorico = document.getElementById('tab-historico');
+      
+      const painelEntrada = document.getElementById('painel-entrada');
+      const painelSaida = document.getElementById('painel-saida');
+      const painelHistorico = document.getElementById('painel-historico');
+
+      function esconderTodosPaineis() {
+        if (tabEntrada) tabEntrada.classList.remove('active');
+        if (tabSaida) tabSaida.classList.remove('active');
+        if (tabHistorico) tabHistorico.classList.remove('active');
+        
+        if (painelEntrada) {
+          painelEntrada.classList.add('hidden');
+          painelEntrada.style.display = 'none';
+        }
+        
+        if (painelSaida) {
+          painelSaida.classList.add('hidden');
+          painelSaida.style.display = 'none';
+        }
+        
+        if (painelHistorico) {
+          painelHistorico.classList.add('hidden');
+          painelHistorico.style.display = 'none';
+        }
+      }
+
+      if (tabEntrada) {
+        tabEntrada.addEventListener('click', () => {
+          esconderTodosPaineis();
+          tabEntrada.classList.add('active');
+          painelEntrada.classList.remove('hidden');
+          painelEntrada.style.display = 'block';
+        });
+      }
+
+      if (tabSaida) {
+        tabSaida.addEventListener('click', () => {
+          esconderTodosPaineis();
+          tabSaida.classList.add('active');
+          painelSaida.classList.remove('hidden');
+          painelSaida.style.display = 'block';
+        });
+      }
+
+      if (tabHistorico) {
+        tabHistorico.addEventListener('click', () => {
+          esconderTodosPaineis();
+          tabHistorico.classList.add('active');
+          painelHistorico.classList.remove('hidden');
+          painelHistorico.style.display = 'block';
+          carregarHistorico(); 
+        });
+      }
+
+      const btnAdd = document.getElementById('btn-adicionar-item');
+      if (btnAdd) btnAdd.addEventListener('click', adicionarItemNota);
+
+      const btnFinalizar = document.getElementById('btn-finalizar-nota');
+      if (btnFinalizar) btnFinalizar.addEventListener('click', finalizarNotaFiscal);
+
+      const selectMedSaida = document.getElementById('select_medicamento_saida');
+      if (selectMedSaida) {
+        selectMedSaida.addEventListener('change', (e) => {
+          carregarLotesSaida(e.target.value);
+        });
+      }
+
+      const selectTipoKit = document.getElementById('select_tipo_kit_transferencia');
+      if (selectTipoKit) {
+        selectTipoKit.addEventListener('change', (e) => {
+          carregarLacresDoKitSelecionado(e.target.value);
+          filtrarMedicamentosPeloKit(e.target.value);
+        });
+      }
+      
+      const motivoSelect = document.getElementById('saida_motivo');
+      if (motivoSelect) {
+        motivoSelect.addEventListener('change', (e) => {
+          const valor = e.target.value;
+          
+          const camposDinamicos = document.querySelectorAll('.campo-dinamico-saida');
+          camposDinamicos.forEach(campo => campo.classList.add('hidden'));
+
+          if (valor === 'CONSUMO') {
+            document.getElementById('campo-consumo')?.classList.remove('hidden');
+          } else if (valor === 'EVENTO') {
+            document.getElementById('campo-evento')?.classList.remove('hidden');
+          } else if (valor === 'TRANSFERENCIA') {
+            document.getElementById('campo-transferencia')?.classList.remove('hidden');
+          } else if (valor === 'ABASTECIMENTO_KIT') {
+            document.getElementById('campo-abastecimento-kit')?.classList.remove('hidden');
+          } else if (valor === 'DESCARTE') {
+            document.getElementById('campo-descarte')?.classList.remove('hidden');
+          }
+
+          if (valor !== 'ABASTECIMENTO_KIT') {
+            carregarMedicamentosSaidaSelect(); 
+          }
+        });
+      }
+      
+      const btnFinalizarSaida = document.getElementById('btn-finalizar-saida');
+      if (btnFinalizarSaida) {
+        btnFinalizarSaida.addEventListener('click', window.finalizarSaidaEstoque);
+      }
+
+      const btnFiltrarHist = document.getElementById('btn-filtrar-historico');
+      if (btnFiltrarHist) {
+        btnFiltrarHist.addEventListener('click', carregarHistorico);
+      }
+
+      const btnFecharModalNF = document.getElementById('btn-fechar-modal-nf');
+      if (btnFecharModalNF) {
+        btnFecharModalNF.addEventListener('click', window.fecharModalNF);
+      }
+
+      // ==========================================
+      // STUB: SIMULADOR DO BOTÃO DE BUSCAR FICHA (API)
+      // ==========================================
+      const btnBuscarFicha = document.getElementById('btn-buscar-ficha');
+      if (btnBuscarFicha) {
+        btnBuscarFicha.addEventListener('click', () => {
+          const numeroDaFicha = document.getElementById('saida_ficha_atendimento').value;
+          
+          if(!numeroDaFicha) {
+            Swal.fire('Atenção', 'Digite o número da ficha primeiro.', 'warning');
+            return;
+          }
+
+          // Simulando o tempo de resposta de uma API...
+          Swal.fire({
+            title: 'Buscando Ficha...',
+            text: 'Consultando sistema de atendimento...',
+            allowOutsideClick: false,
+            didOpen: () => { Swal.showLoading(); }
+          });
+
+          setTimeout(() => {
+            // Quando a API for real, você colocará a lógica do FETCH aqui
+            Swal.close();
+            
+            // Exemplo de preenchimento automático de sucesso
+            document.getElementById('saida_destino_consumo').value = "Paciente Teste Silva - Leito 204B";
+            document.getElementById('saida_instituicao_consumo').value = "Hospital Mais Vida";
+            
+            // Apenas como feedback visual para o seu teste agora:
+            Swal.fire({
+              icon: 'success',
+              title: 'Ficha Encontrada!',
+              text: 'Os dados do paciente foram preenchidos.',
+              timer: 1500,
+              showConfirmButton: false
+            });
+          }, 1500);
+        });
+      }
+
+    });
+  </script>
+</body>
+</html>

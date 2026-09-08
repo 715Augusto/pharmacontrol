@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fornecedores - PharmaControl</title>
+  <link rel="icon" href="./Imgs/Logo-mais-vida-120x90-azul-2.png" type="image/png">
+  <link rel="stylesheet" href="./css/global.css">
+  
+  <!-- ADICIONADO: Biblioteca SweetAlert2 para os alertas bonitos funcionarem! -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="brand">PharmaControl</div>
+    <ul class="menu">
+      <li class="menu-section">Análises</li>
+      <li class="menu-item"><a href="dashboard.html">📊 Dashboard</a></li>
+      <li class="menu-item"><a href="relatorios.html">📈 Relatórios</a></li>
+      <li class="menu-section">Operações</li>
+      <li class="menu-item"><a href="movimentacoes.html">🚚 Movimentações</a></li>
+      <li class="menu-item"><a href="estoque-detalhado.html">📋 Estoque Detalhado</a></li>
+      <li class="menu-section">Cadastros</li>
+      <li class="menu-item"><a href="medicamentos.html">💊 Medicamentos</a></li>
+      <li class="menu-item active"><a href="#">🏢 Fornecedores</a></li>
+      <li class="menu-item"><a href="kits.html">🧰 Kits</a></li>
+      <li class="menu-item"><a href="localizacoes.html">📍 Localizações</a></li>
+      <li class="menu-section">Ajustes</li>
+      <li class="menu-item"><a href="configuracoes.html">⚙️ Configurações</a></li>
+    </ul> <!-- CORRIGIDO: Esta tag estava faltando no seu arquivo original! -->
+    
+    <div class="user-info">
+      <div>Usuário: <strong id="nome-usuario-logado">Carregando...</strong></div>
+      <button id="btn-tema" class="btn-tema">🌓 Modo Escuro</button>
+      <button id="btn-sair" class="btn-logout" type="button">Sair do Sistema 🚪</button>
+    </div>
+  </aside>
+
+  <main>
+    <h1 style="margin-bottom: 24px; color: var(--text);">Cadastro de Fornecedores</h1>
+
+    <div class="card-form">
+      <h3>Novo Fornecedor</h3>
+      <form id="form-fornecedor" class="form-grid">
+        <!-- Campo Oculto de ID -->
+        <input type="hidden" id="fornecedor_id">
+
+        <div class="form-group">
+          <label>Razão Social</label>
+          <input type="text" id="razao_social" placeholder="Ex: Distribuidora Med Ltda" required>
+        </div>
+        <div class="form-group">
+          <label>Nome Fantasia</label>
+          <input type="text" id="nome_fantasia" placeholder="Ex: MedDistribuidora">
+        </div>
+        <div class="form-group">
+          <label>CNPJ</label>
+          <input type="text" id="cnpj" placeholder="00.000.000/0001-00">
+        </div>
+        <div class="form-group">
+          <label>Telefone</label>
+          <input type="text" id="telefone" placeholder="(81) 99999-9999">
+        </div>
+        <div class="form-group">
+          <label>E-mail de Contato</label>
+          <input type="email" id="email" placeholder="contato@fornecedor.com">
+        </div>
+
+        <div style="grid-column: 1 / -1; display: flex; justify-content: flex-end; margin-top: 10px;">
+           <button type="submit" class="btn btn-save" style="width: auto; padding: 12px 24px;">Cadastrar Fornecedor</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Adicionada a classe 'card' para pegar a cor noturna corretamente -->
+    <div class="card table-card" style="padding: 0; overflow: hidden; border: 1px solid var(--muted); box-shadow: none;">
+      <h3 style="padding: 20px 20px 10px 20px; margin: 0; color: var(--text);">Fornecedores Cadastrados</h3>
+      <div class="table-container" style="box-shadow: none; padding: 0; margin-top: 0; border-radius: 0;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr>
+              <th style="padding: 12px 20px;">Razão Social</th>
+              <th style="padding: 12px 20px;">Nome Fantasia</th>
+              <th style="padding: 12px 20px;">CNPJ</th>
+              <th style="padding: 12px 20px;">Telefone</th>
+              <th style="padding: 12px 20px;">E-mail</th>
+              <th style="padding: 12px 20px;">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="lista-fornecedores">
+            <tr><td colspan="6" style="text-align:center; color: var(--muted); padding: 20px;">Carregando fornecedores...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+  
+  <script type="module">
+    import './js/auth-guard.js';
+    import './js/utils.js'; // Modo Escuro e Sair processados aqui
+    import { carregarFornecedores, salvarFornecedor } from './js/tela-fornecedores.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      carregarFornecedores();
+      const formForn = document.getElementById('form-fornecedor');
+      if (formForn) formForn.addEventListener('submit', salvarFornecedor);
+    });
+  </script>
+</body>
+</html>
