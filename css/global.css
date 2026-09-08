@@ -272,3 +272,46 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* ========================================== */
+/* BOTÕES DO MENU MOBILE                      */
+/* ========================================== */
+/* Esconde os botões quando estiver no computador */
+.mobile-header, .btn-fechar-menu {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  /* Mostra o botão de abrir no celular */
+  .mobile-header {
+    display: flex;
+    margin-bottom: 20px;
+  }
+  .btn-menu {
+    background: var(--primary-color, #0284c7);
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    font-weight: bold;
+    width: 100%;
+    text-align: center;
+  }
+  
+  /* Mostra o botão de fechar dentro da gaveta */
+  .btn-fechar-menu {
+    display: block;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    font-weight: bold;
+  }
+}
