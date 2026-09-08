@@ -74,3 +74,26 @@ document.addEventListener('DOMContentLoaded', () => {
     btnSair.addEventListener('click', fazerLogout);
   }
 });
+
+// ==========================================
+// CONTROLE DO MENU MOBILE (GAVETA)
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+  const btnAbrir = document.getElementById('btn-abrir-menu');
+  const btnFechar = document.getElementById('btn-fechar-menu');
+  const menuLateral = document.querySelector('aside');
+
+  // Abre a gaveta
+  if (btnAbrir && menuLateral) {
+    btnAbrir.addEventListener('click', () => {
+      menuLateral.classList.add('gaveta-aberta');
+    });
+  }
+
+  // Fecha a gaveta
+  if (btnFechar && menuLateral) {
+    btnFechar.addEventListener('click', () => {
+      menuLateral.classList.remove('gaveta-aberta');
+    });
+  }
+});
