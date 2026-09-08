@@ -6,6 +6,11 @@
   <title>PharmaControl:: Home</title>
   <link rel="icon" href="./Imgs/Logo-mais-vida-120x90-azul-2.png" type="image/png">
   <link rel="stylesheet" href="./css/global.css">
+  <script>
+    if (localStorage.getItem('tema') === 'escuro') {
+      document.documentElement.classList.add('dark-mode'); 
+    }
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <!-- 📈 Biblioteca de Gráficos (Chart.js) -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
