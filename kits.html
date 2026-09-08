@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kits - PharmaControl</title>
   <link rel="icon" href="./Imgs/Logo-mais-vida-120x90-azul-2.png" type="image/png">
+  <script>
+    if (localStorage.getItem('tema') === 'escuro') {
+      document.documentElement.classList.add('dark-mode'); 
+    }
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <link rel="stylesheet" href="./css/global.css">
 </head>
