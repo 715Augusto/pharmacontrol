@@ -7,8 +7,11 @@ export async function carregarUsuarios() {
   const tbody = document.getElementById('lista-usuarios');
   if (!tbody) return;
 
-  // Usa a nova função segura criada no banco (RPC)
-  const { data, error } = await supabase.rpc('buscar_usuarios_com_acesso');
+  // Busca todos os perfis diretamente (Admin tem acesso total via RLS)
+  const { data, error } = await supabase
+    .from('perfis')
+    .select('*')
+    .order('nome', { ascending: true });
 
   if (error) {
     console.error('Erro ao buscar usuários:', error);
@@ -17,10 +20,21 @@ export async function carregarUsuarios() {
   }
 
   tbody.innerHTML = data.map(user => {
-    const badgeNivel = user.nivel_acesso === 'ADMIN' 
-      ? '<span style="background:#dc2626; color:white; padding:4px 8px; border-radius:4px; font-size:0.8rem;">Admin</span>' 
-      : '<span style="background:#0284c7; color:white; padding:4px 8px; border-radius:4px; font-size:0.8rem;">Padrão</span>';
+    // MAPEAMENTO DAS BADGES DOS NOVOS 4 CARGOS
+    let badgeNivel = '';
+    const cargo = user.cargo || user.nivel_acesso; // Compatibilidade com registros antigos
     
+    if (cargo === 'admin') {
+      badgeNivel = '<span style="background:#dc2626; color:white; padding:4px 8px; border-radius:4px; font-size:0.8rem;">👑 Admin (Gestor)</span>';
+    } else if (cargo === 'farmaceutico') {
+      badgeNivel = '<span style="background:#0284c7; color:white; padding:4px 8px; border-radius:4px; font-size:0.8rem;">💊 Farmacêutico</span>';
+    } else if (cargo === 'auxiliar_2') {
+      badgeNivel = '<span style="background:#eab308; color:#1e293b; padding:4px 8px; border-radius:4px; font-size:0.8rem; font-weight:bold;">📦 Auxiliar 2 (Entradas)</span>';
+    } else {
+      badgeNivel = '<span style="background:#94a3b8; color:white; padding:4px 8px; border-radius:4px; font-size:0.8rem;">🤝 Auxiliar 1 (Dispensação)</span>';
+    }
+    
+    // MAPEAMENTO DOS STATUS
     let badgeStatus = '';
     let acaoTexto = '';
     let novoStatus = '';
@@ -35,11 +49,11 @@ export async function carregarUsuarios() {
       novoStatus = 'ATIVO';
     } else {
       badgeStatus = '<span style="color:#f59e0b; font-weight:bold;">⏳ Pendente</span>';
-      acaoTexto = '🚫 Cancelar Convite (Inativar)';
+      acaoTexto = '🚫 Cancelar Convite';
       novoStatus = 'INATIVO';
     }
 
-    // Lógica para formatar a data de último acesso
+    // FORMATAÇÃO DO ÚLTIMO ACESSO
     let dataAcesso = '<span style="color: var(--muted);">Nunca acessou</span>';
     if (user.ultimo_acesso) {
       const dataObj = new Date(user.ultimo_acesso);
@@ -48,11 +62,11 @@ export async function carregarUsuarios() {
 
     return `
       <tr>
-        <td><strong>${user.nome}</strong></td>
+        <td><strong>${user.nome || 'Sem Nome'}</strong></td>
         <td>${user.email}</td>
         <td>${badgeNivel}</td>
         <td>${badgeStatus}</td>
-        <td>${dataAcesso}</td> <!-- NOVA LINHA DA DATA -->
+        <td>${dataAcesso}</td>
         <td>
           <button type="button" onclick="alterarStatusUsuario('${user.id}', '${novoStatus}')" class="btn-remover" style="width: auto; padding: 4px 8px; border-radius: 4px; font-size: 0.9rem;">
             ${acaoTexto}
@@ -71,7 +85,7 @@ export async function cadastrarUsuario(event) {
 
   const nome = document.getElementById('usuario_nome').value.trim();
   const email = document.getElementById('usuario_email').value.trim();
-  const nivel = document.getElementById('usuario_nivel').value;
+  const cargoEscolhido = document.getElementById('usuario_nivel').value; // 'admin', 'farmaceutico', etc.
 
   Swal.fire({
     title: 'Criando conta...',
@@ -83,6 +97,7 @@ export async function cadastrarUsuario(event) {
   try {
     const senhaTemporaria = Math.random().toString(36).slice(-8) + "A!1a";
 
+    // Dispara a criação no Auth
     const resAuth = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
       method: 'POST',
       headers: {
@@ -96,25 +111,34 @@ export async function cadastrarUsuario(event) {
 
     if (!resAuth.ok) {
       if (authData.msg?.includes('already registered')) throw new Error('Este e-mail já está cadastrado no sistema.');
-      throw new Error(authData.msg || authData.message || 'Erro ao criar conta no cofre.');
+      throw new Error(authData.msg || authData.message || 'Erro ao criar conta no cofre de segurança.');
     }
 
     const userId = authData.user?.id || authData.id;
 
-    // GRAVA COMO "PENDENTE" NO BANCO
+    // GRAVA O PERFIL PENDENTE COM O NOVO CARGO
     const { error: dbError } = await supabase
       .from('perfis')
-      .insert([{ id: userId, nome, email, nivel_acesso: nivel, status: 'PENDENTE' }]);
+      .insert([{ 
+        id: userId, 
+        nome: nome, 
+        email: email, 
+        cargo: cargoEscolhido, // <-- MÁGICA AQUI
+        status: 'PENDENTE' 
+      }]);
 
-    if (dbError) throw dbError;
+    if (dbError) {
+       console.error("Erro no DB:", dbError);
+       throw new Error("Erro ao salvar o perfil. Contate o suporte.");
+    }
 
-    // ENVIA O E-MAIL
+    // ENVIA O E-MAIL DE RESET (VAI SERVIR COMO CONVITE)
     await supabase.auth.resetPasswordForEmail(email);
 
     Swal.fire({
       icon: 'success',
       title: 'Convite Enviado!',
-      text: `O usuário ficará PENDENTE até configurar a senha pelo e-mail.`,
+      text: `O e-mail foi disparado para ${email}. O acesso ficará PENDENTE até ele criar a senha definitiva.`,
       confirmButtonColor: '#0284c7'
     });
 
