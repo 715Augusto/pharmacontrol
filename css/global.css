@@ -199,3 +199,76 @@ body {
     transform: translateY(0); 
   }
 }
+
+/* ========================================== */
+/* RESPONSIVIDADE - MODO MOBILE (CELULAR)     */
+/* ========================================== */
+@media (max-width: 768px) {
+  /* 1. Oculta o menu lateral e prepara ele para ser uma gaveta que sobe */
+  aside {
+    position: fixed;
+    top: 100%; /* Esconde para baixo da tela */
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    z-index: 9999;
+    transition: top 0.3s ease-in-out;
+    padding: 20px;
+    overflow-y: auto;
+    background-color: var(--bg-sidebar, #0f172a);
+  }
+
+  /* Classe ativada pelo botão para abrir a gaveta */
+  aside.gaveta-aberta {
+    top: 0; 
+  }
+
+  /* 2. Transforma a lista do menu em um Grid de Cards (Estilo App Drawer) */
+  .menu {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Duas colunas */
+    gap: 15px;
+    margin-top: 20px;
+    padding: 0;
+  }
+
+  /* Ajusta o título das seções para ocupar as duas colunas */
+  .menu-section {
+    grid-column: 1 / -1;
+    text-align: center;
+    margin-top: 15px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding-bottom: 5px;
+  }
+
+  /* Transforma cada link em um Card grandão */
+  .menu-item {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 20px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
+  }
+
+  .menu-item a {
+    display: flex;
+    flex-direction: column; /* Coloca o ícone em cima e o texto embaixo */
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+    white-space: normal;
+    padding: 0;
+  }
+
+  /* 3. Expande a área de trabalho para ocupar 100% da tela */
+  main {
+    width: 100%;
+    margin-left: 0;
+    padding: 15px;
+  }
+  
+  /* Ajusta os formulários para uma coluna só no celular */
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
